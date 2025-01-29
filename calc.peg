@@ -1,0 +1,23 @@
+%prefix "calc"
+
+statement <- _ e:expression EOL { printf("answer=%d\n", e); }
+
+expression <- e:term { $$ = e; }
+
+term <- l:term '+'_ r:factor { $$ = l + r; }
+      / l:term '-'_ r:factor { $$ = l - r; }
+      / e:factor             { $$ = e; }
+
+factor <- l:factor '*'_ r:unary { $$ = l * r; }
+        / l:factor '/'_ r:unary { $$ = l / r; }
+        / e:unary               { $$ = e; }
+
+unary <- '+'_ e:unary { $$ = +e; }
+       / '-'_ e:unary { $$ = -e; }
+       / e:primary     { $$ = e; }
+
+primary <- < [0-9]+ > _           { $$ = atoi($1); }
+         / '('_ e:expression ')'_ { $$ = e; }
+
+_      <- [ \t]*
+EOL    <- '\n' / '\r\n' / '\r' / ';'
